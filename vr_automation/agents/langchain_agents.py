@@ -9,7 +9,7 @@ import pandas as pd
 from langchain.agents import AgentExecutor, create_openai_functions_agent
 from langchain.tools import BaseTool
 from langchain.schema import BaseMessage, HumanMessage, AIMessage
-from langchain_openai import ChatOpenAI
+from langchain.chat_models import ChatOpenAI
 from langchain.prompts import ChatPromptTemplate, MessagesPlaceholder
 from langchain.memory import ConversationBufferMemory
 from crewai import Agent, Task, Crew, Process

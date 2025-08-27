@@ -1,6 +1,11 @@
 """
 Agentes de IA para o sistema VR/VA
 """
+from .coordinator import CoordinatorAgent
+from .data_consolidator import DataConsolidatorAgent
+from .validator import ValidatorAgent
+from .calculator import CalculatorAgent
+from .reporter import ReporterAgent
 
 # Placeholder para agentes básicos (serão implementados quando necessário)
 class CoordinatorAgent:
@@ -25,7 +30,7 @@ class ReporterAgent:
 
 __all__ = [
     'CoordinatorAgent',
-    'DataConsolidatorAgent', 
+    'DataConsolidatorAgent',
     'ValidatorAgent',
     'CalculatorAgent',
     'ReporterAgent'

@@ -10,9 +10,9 @@ import plotly.graph_objects as go
 import plotly.express as px
 from plotly.subplots import make_subplots
 
-from ..schemas import Employee, Benefit
-from ..utils import ExcelHandler, StreamlitUtils
-from ..config.settings import settings
+from vr_automation.schemas import Employee, Benefit
+from vr_automation.utils import ExcelHandler, StreamlitUtils
+from vr_automation.config.settings import settings
 
 logger = logging.getLogger(__name__)
 

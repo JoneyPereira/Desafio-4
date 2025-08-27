@@ -4,7 +4,7 @@ Schemas para validação de dados do sistema VR/VA
 
 from .employee import Employee, EmployeeStatus
 from .benefits import Benefit, BenefitType, BenefitCalculation
-from .validation import ValidationResult, ValidationError
+from .validation import ValidationResult, ValidationError, ValidationSeverity
 
 __all__ = [
     'Employee',
@@ -13,5 +13,6 @@ __all__ = [
     'BenefitType',
     'BenefitCalculation',
     'ValidationResult',
-    'ValidationError'
+    'ValidationError',
+    'ValidationSeverity'
 ]

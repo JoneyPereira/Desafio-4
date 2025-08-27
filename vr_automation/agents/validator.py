@@ -7,9 +7,9 @@ from typing import Dict, List, Any, Optional
 from datetime import datetime
 import pandas as pd
 
-from ..schemas import Employee, ValidationResult, ValidationError, ValidationSeverity
-from ..utils import ExcelHandler, DateUtils
-from ..config.settings import settings
+from vr_automation.schemas import Employee, ValidationResult, ValidationError, ValidationSeverity
+from vr_automation.utils import ExcelHandler, DateUtils
+from vr_automation.config.settings import settings
 
 logger = logging.getLogger(__name__)
 
