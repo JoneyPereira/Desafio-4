@@ -7,9 +7,9 @@ from typing import Dict, List, Any, Optional
 from datetime import datetime
 import pandas as pd
 
-from vr_automation.schemas import Employee, ValidationResult, ValidationError, ValidationSeverity
-from vr_automation.utils import ExcelHandler, DateUtils
-from vr_automation.config.settings import settings
+from schemas import Employee, ValidationResult, ValidationError, ValidationSeverity
+from utils import ExcelHandler, DateUtils
+from config.settings import settings
 
 logger = logging.getLogger(__name__)
 
@@ -57,14 +57,14 @@ class ValidatorAgent:
             
             # Consolidar resultados
             overall_validation = ValidationResult(
-                is_valid=total_errors == 0,
-                total_files=len(uploaded_files),
-                total_errors=total_errors,
+                arquivo="multiple",
+                tipo_validacao="upload",
+                valido=total_errors == 0,
+                total_erros=total_errors,
                 total_warnings=total_warnings,
-                file_validations=validation_results,
-                cross_validation=cross_validation,
-                integrity_validation=integrity_validation,
-                timestamp=datetime.now()
+                linhas_processadas=sum(result.get('total_rows', 0) for result in validation_results.values()),
+                linhas_com_erro=0,
+                inicio_validacao=datetime.now()
             )
             
             self.validation_log.append({

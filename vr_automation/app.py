@@ -331,9 +331,9 @@ def show_validation_results(validation_result):
     # Mostrar resumo geral
     col1, col2, col3 = st.columns(3)
     with col1:
-        st.metric("Total de Arquivos", validation_result.total_files)
+        st.metric("Total de Arquivos", len(validation_result.file_validations) if hasattr(validation_result, 'file_validations') else 0)
     with col2:
-        st.metric("Total de Erros", validation_result.total_errors)
+        st.metric("Total de Erros", validation_result.total_erros)
     with col3:
         st.metric("Total de Avisos", validation_result.total_warnings)
     
