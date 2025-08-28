@@ -1,5 +1,5 @@
 """
-Agentes de IA usando LangChain e CrewAI para o sistema VR/VA
+Agentes usando LangChain e CrewAI para o sistema VR/VA
 """
 
 import logging
@@ -7,14 +7,12 @@ from typing import Dict, List, Any, Optional
 from datetime import datetime, date
 import pandas as pd
 from langchain.agents import AgentExecutor, create_openai_functions_agent
-from langchain.tools import BaseTool
+from langchain.tools import BaseTool, Tool
 from langchain.schema import BaseMessage, HumanMessage, AIMessage
-from langchain.chat_models import ChatOpenAI
+from langchain_openai import ChatOpenAI
 from langchain.prompts import ChatPromptTemplate, MessagesPlaceholder
 from langchain.memory import ConversationBufferMemory
 from crewai import Agent, Task, Crew, Process
-from crewai.tools import BaseCrewTool
-import json
 
 from schemas.employee import Employee, EmployeeStatus
 from schemas.benefits import Benefit, BenefitType, BenefitCalculation
@@ -92,7 +90,15 @@ class CrewAIVRVAOrchestrator:
             e sugere correções para garantir dados confiáveis.""",
             verbose=True,
             allow_delegation=False,
-            tools=[ValidationTool(), DataQualityTool()]
+            tools=[{
+                "name": "validation",
+                "description": "Valida qualidade e integridade dos dados de funcionários",
+                "function": lambda x: ValidationTool()._run(x)
+            }, {
+                "name": "data_quality",
+                "description": "Analisa qualidade e consistência dos dados",
+                "function": lambda x: DataQualityTool()._run(x)
+            }]
         )
         
         # Agente Consolidador
@@ -104,7 +110,15 @@ class CrewAIVRVAOrchestrator:
             e prontos para processamento.""",
             verbose=True,
             allow_delegation=False,
-            tools=[ConsolidationTool(), DataCleaningTool()]
+            tools=[{
+                "name": "consolidation",
+                "description": "Consolida dados de múltiplas fontes",
+                "function": lambda x: ConsolidationTool()._run(x)
+            }, {
+                "name": "data_cleaning",
+                "description": "Remove duplicatas e corrige inconsistências",
+                "function": lambda x: DataCleaningTool()._run(x)
+            }]
         )
         
         # Agente Calculador
@@ -116,7 +130,15 @@ class CrewAIVRVAOrchestrator:
             feriados, férias, admissões e demissões.""",
             verbose=True,
             allow_delegation=False,
-            tools=[CalculationTool(), BusinessRulesTool()]
+            tools=[{
+                "name": "calculation",
+                "description": "Calcula benefícios VR/VA seguindo regras de negócio",
+                "function": lambda x: CalculationTool()._run(x)
+            }, {
+                "name": "business_rules",
+                "description": "Aplica regras de negócio específicas para VR/VA",
+                "function": lambda x: BusinessRulesTool()._run(x)
+            }]
         )
         
         # Agente Relator
@@ -128,7 +150,15 @@ class CrewAIVRVAOrchestrator:
             insights acionáveis.""",
             verbose=True,
             allow_delegation=False,
-            tools=[ReportingTool(), VisualizationTool()]
+            tools=[{
+                "name": "reporting",
+                "description": "Gera relatórios e análises detalhadas",
+                "function": lambda x: ReportingTool()._run(x)
+            }, {
+                "name": "visualization",
+                "description": "Cria gráficos e dashboards interativos",
+                "function": lambda x: VisualizationTool()._run(x)
+            }]
         )
         
         # Agente Coordenador
@@ -140,7 +170,11 @@ class CrewAIVRVAOrchestrator:
             resultados precisos e no prazo.""",
             verbose=True,
             allow_delegation=True,
-            tools=[CoordinationTool()]
+            tools=[{
+                "name": "coordination",
+                "description": "Coordena e monitora o processo completo",
+                "function": lambda x: CoordinationTool()._run(x)
+            }]
         )
         
         self.agents = {
@@ -261,128 +295,166 @@ class CrewAIVRVAOrchestrator:
             return {"success": False, "error": str(e)}
 
 
+from typing import Any
+
 # Ferramentas para os agentes
-class ValidationTool(BaseCrewTool):
-    """Ferramenta para validação de dados"""
-    
+class ValidationTool(BaseTool):
     name: str = "validation_tool"
     description: str = "Valida qualidade e integridade dos dados de funcionários"
     
-    def _run(self, data: str) -> str:
+    def _run(self, input_str: str) -> str:
         try:
             # Implementar lógica de validação
             return "Dados validados com sucesso"
         except Exception as e:
             return f"Erro na validação: {str(e)}"
+            
+    async def _arun(self, input_str: str) -> str:
+        return self._run(input_str)
+
+    def run(self, tool_input: str) -> str:
+        return self._run(tool_input)
 
 
-class ConsolidationTool(BaseCrewTool):
-    """Ferramenta para consolidação de dados"""
-    
+class ConsolidationTool(BaseTool):
     name: str = "consolidation_tool"
     description: str = "Consolida dados de múltiplas fontes"
     
-    def _run(self, data: str) -> str:
+    def _run(self, input_str: str) -> str:
         try:
             # Implementar lógica de consolidação
             return "Dados consolidados com sucesso"
         except Exception as e:
             return f"Erro na consolidação: {str(e)}"
+            
+    async def _arun(self, input_str: str) -> str:
+        return self._run(input_str)
+
+    def run(self, tool_input: str) -> str:
+        return self._run(tool_input)
 
 
-class CalculationTool(BaseCrewTool):
-    """Ferramenta para cálculos de benefícios"""
-    
+class CalculationTool(BaseTool):
     name: str = "calculation_tool"
     description: str = "Calcula benefícios VR/VA seguindo regras de negócio"
     
-    def _run(self, data: str) -> str:
+    def _run(self, input_str: str) -> str:
         try:
             # Implementar lógica de cálculo
             return "Benefícios calculados com sucesso"
         except Exception as e:
             return f"Erro no cálculo: {str(e)}"
+            
+    async def _arun(self, input_str: str) -> str:
+        return self._run(input_str)
+
+    def run(self, tool_input: str) -> str:
+        return self._run(tool_input)
 
 
-class ReportingTool(BaseCrewTool):
-    """Ferramenta para geração de relatórios"""
-    
+class ReportingTool(BaseTool):
     name: str = "reporting_tool"
     description: str = "Gera relatórios e análises detalhadas"
     
-    def _run(self, data: str) -> str:
+    def _run(self, input_str: str) -> str:
         try:
             # Implementar lógica de relatórios
             return "Relatórios gerados com sucesso"
         except Exception as e:
             return f"Erro na geração de relatórios: {str(e)}"
+            
+    async def _arun(self, input_str: str) -> str:
+        return self._run(input_str)
+
+    def run(self, tool_input: str) -> str:
+        return self._run(tool_input)
 
 
-class CoordinationTool(BaseCrewTool):
-    """Ferramenta para coordenação de processos"""
-    
+class CoordinationTool(BaseTool):
     name: str = "coordination_tool"
     description: str = "Coordena e monitora o processo completo"
     
-    def _run(self, data: str) -> str:
+    def _run(self, input_str: str) -> str:
         try:
             # Implementar lógica de coordenação
             return "Processo coordenado com sucesso"
         except Exception as e:
             return f"Erro na coordenação: {str(e)}"
+            
+    async def _arun(self, input_str: str) -> str:
+        return self._run(input_str)
+
+    def run(self, tool_input: str) -> str:
+        return self._run(tool_input)
 
 
-class DataQualityTool(BaseCrewTool):
-    """Ferramenta para análise de qualidade de dados"""
-    
+class DataQualityTool(BaseTool):
     name: str = "data_quality_tool"
     description: str = "Analisa qualidade e consistência dos dados"
     
-    def _run(self, data: str) -> str:
+    def _run(self, input_str: str) -> str:
         try:
             # Implementar análise de qualidade
             return "Análise de qualidade concluída"
         except Exception as e:
             return f"Erro na análise: {str(e)}"
+            
+    async def _arun(self, input_str: str) -> str:
+        return self._run(input_str)
+
+    def run(self, tool_input: str) -> str:
+        return self._run(tool_input)
 
 
-class DataCleaningTool(BaseCrewTool):
-    """Ferramenta para limpeza de dados"""
-    
+class DataCleaningTool(BaseTool):
     name: str = "data_cleaning_tool"
     description: str = "Remove duplicatas e corrige inconsistências"
     
-    def _run(self, data: str) -> str:
+    def _run(self, input_str: str) -> str:
         try:
             # Implementar limpeza de dados
             return "Dados limpos com sucesso"
         except Exception as e:
             return f"Erro na limpeza: {str(e)}"
+            
+    async def _arun(self, input_str: str) -> str:
+        return self._run(input_str)
+
+    def run(self, tool_input: str) -> str:
+        return self._run(tool_input)
 
 
-class BusinessRulesTool(BaseCrewTool):
-    """Ferramenta para aplicação de regras de negócio"""
-    
+class BusinessRulesTool(BaseTool):
     name: str = "business_rules_tool"
     description: str = "Aplica regras de negócio específicas para VR/VA"
     
-    def _run(self, data: str) -> str:
+    def _run(self, input_str: str) -> str:
         try:
             # Implementar aplicação de regras
             return "Regras de negócio aplicadas"
         except Exception as e:
             return f"Erro na aplicação de regras: {str(e)}"
+            
+    async def _arun(self, input_str: str) -> str:
+        return self._run(input_str)
+
+    def run(self, tool_input: str) -> str:
+        return self._run(tool_input)
 
 
-class VisualizationTool(BaseCrewTool):
-    """Ferramenta para criação de visualizações"""
-    
+class VisualizationTool(BaseTool):
     name: str = "visualization_tool"
     description: str = "Cria gráficos e dashboards interativos"
     
-    def _run(self, data: str) -> str:
+    def _run(self, input_str: str) -> str:
         try:
             # Implementar criação de visualizações
             return "Visualizações criadas com sucesso"
         except Exception as e:
             return f"Erro na criação de visualizações: {str(e)}"
+            
+    async def _arun(self, input_str: str) -> str:
+        return self._run(input_str)
+
+    def run(self, tool_input: str) -> str:
+        return self._run(tool_input)
